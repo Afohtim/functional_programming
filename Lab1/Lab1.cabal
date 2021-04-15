@@ -25,10 +25,15 @@ source-repository head
 
 library
   exposed-modules:
+      CheckTables
+      Competition
       Converter
+      SportSection
       SQLConnection
       Students
       Table
+      Teachers
+      TrainingSchedule
   other-modules:
       Paths_Lab1
   hs-source-dirs:

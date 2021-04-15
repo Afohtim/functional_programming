@@ -8,35 +8,28 @@ import qualified Data.ByteString.Lazy.Char8 as BtSt ( pack )
 
 import SQLConnection
 
--- return list of tables
 showTables :: MySQLConn -> IO [[MySQLValue]]
 showTables conn = getRidOfStream (query_ conn "SHOW TABLES;")
 
--- convert to query
 toQuery :: String -> Query
 toQuery = Query . BtSt.pack
 
--- error status if object not exists
 errorOnNotExistence :: OK
 errorOnNotExistence = OK (-100) (-100) 0 0
 
--- error status if object already exists
 errorOnExistence :: OK
 errorOnExistence = OK (-200) (-200) 0 0
 
--- generate where query
 generateWhere :: [String] -> String
 generateWhere [] = ""
 generateWhere [x] = x ++ " = ?"
 generateWhere (x:xs) = x ++ " = ? and " ++ generateWhere xs
 
--- generate where query
 generateSet :: [String] -> String
 generateSet [] = ""
 generateSet [x] = x ++ " = ?"
 generateSet (x:xs) = x ++ " = ?, " ++ generateSet xs
 
--- generate where query
 generateInsert :: [String] -> String
 generateInsert [] = " "
 generateInsert [x] = x
@@ -58,7 +51,6 @@ class Table a where
     fromMySQLValues :: IO [[MySQLValue]] -> IO a
     isEmpty :: a -> Bool    
     len :: a -> Int
-    --printInfo :: a -> MySQLConn -> IO ()
 
     readValue :: a -> MySQLConn -> IO a
     readValue tableInfo conn = 
@@ -96,7 +88,6 @@ class Table a where
                 (getFieldValues tableInfo)
         else return errorOnExistence
 
-    -- delete value from table
     deleteValue :: a -> MySQLConn -> IO OK
     deleteValue tableInfo conn = 
         execute conn (toQuery ("DELETE FROM " ++ getName tableInfo ++ 
